@@ -1,0 +1,6 @@
+.venv/
+**/aws
+dist/
+**/build/
+**/langflow-pre.db
+**/langflow.db
