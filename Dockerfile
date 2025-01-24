@@ -18,7 +18,7 @@ RUN apt-get update \
 
 COPY . /app/
 
-RUN --mount=type=cache,target=/root/.cache/uv \
+RUN --mount=type=cache,id=uv-cache,target=/root/.cache/uv \
     uv sync --frozen --no-editable
 
 FROM python:3.12.3-slim AS runtime
@@ -35,9 +35,13 @@ COPY --from=builder --chown=1000 /app/.venv /app/.venv
 COPY --from=builder --chown=1000 /app /app
 
 ENV PATH="/app/.venv/bin:$PATH"
-ENV PORT=7860
+ENV PORT=${PORT:-7860}
 ENV HOST=0.0.0.0
+ENV PYTHONUNBUFFERED=1
+ENV LANGFLOW_HOST=0.0.0.0
 
-EXPOSE 7860
+EXPOSE ${PORT}
 
-CMD ["langflow", "run", "--host", "0.0.0.0", "--port", "7860"]
+USER 1000
+
+CMD langflow run --host 0.0.0.0 --port ${PORT}
