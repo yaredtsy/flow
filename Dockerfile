@@ -18,7 +18,7 @@ RUN apt-get update \
 
 COPY . /app/
 
-RUN --mount=type=cache,id=uv-cache,target=/root/.cache/uv \
+RUN --mount=type=cache,target=/root/.cache/uv,id=cache-uv \
     uv sync --frozen --no-editable
 
 FROM python:3.12.3-slim AS runtime
