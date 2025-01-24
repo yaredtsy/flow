@@ -241,7 +241,6 @@ endif
 
 build_and_run: setup_env ## build the project and run it
 	$(call CLEAR_DIRS,dist base/dist)
-	make build
 	uv run pip install dist/*.tar.gz
 	uv run langflow run
 
