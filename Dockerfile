@@ -1,14 +1,43 @@
-FROM langflowai/backend_build as backend_build
+# syntax=docker/dockerfile:1
+FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim AS builder
 
-FROM python:3.10-slim
 WORKDIR /app
 
-RUN apt-get update && apt-get install git -y
+ENV UV_COMPILE_BYTECODE=1
+ENV UV_LINK_MODE=copy
 
-COPY --from=backend_build /app/dist/*.whl /app/
-RUN pip install langflow-*.whl
-RUN rm *.whl
+RUN apt-get update \
+    && apt-get upgrade -y \
+    && apt-get install --no-install-recommends -y \
+    build-essential \
+    git \
+    npm \
+    gcc \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
-EXPOSE 80
+COPY . /app/
 
-CMD [ "uvicorn", "--host", "0.0.0.0", "--port", "7860", "--factory", "langflow.main:create_app" ]
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --no-editable
+
+FROM python:3.12.3-slim AS runtime
+
+RUN apt-get update \
+    && apt-get upgrade -y \
+    && apt-get install -y curl \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* \
+    && useradd user -u 1000 -g 0 --no-create-home --home-dir /app/data \
+    && mkdir /data && chown -R 1000:0 /data
+
+COPY --from=builder --chown=1000 /app/.venv /app/.venv
+COPY --from=builder --chown=1000 /app /app
+
+ENV PATH="/app/.venv/bin:$PATH"
+ENV PORT=7860
+ENV HOST=0.0.0.0
+
+EXPOSE 7860
+
+CMD ["langflow", "run", "--host", "0.0.0.0", "--port", "7860"]
