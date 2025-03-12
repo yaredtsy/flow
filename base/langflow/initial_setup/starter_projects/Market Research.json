@@ -1721,11 +1721,6 @@
                 "input_types": [],
                 "name": "agent_llm",
                 "options": [
-                  "Amazon Bedrock",
-                  "Anthropic",
-                  "Azure OpenAI",
-                  "Groq",
-                  "NVIDIA",
                   "OpenAI",
                   "Custom"
                 ],
