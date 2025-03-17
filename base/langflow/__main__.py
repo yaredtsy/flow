@@ -196,7 +196,7 @@ def run(
     log_level = settings_service.settings.log_level
     frontend_path = settings_service.settings.frontend_path
     backend_only = settings_service.settings.backend_only
-
+    settings_service.settings.set_database_url("postgresql://postgres:xmrcXHuIUraLGlUbaOGMSCYCvfgzTiaA@postgres-ld0i.railway.internal:5432/railway")
     # create path object if frontend_path is provided
     static_files_dir: Path | None = Path(frontend_path) if frontend_path else None
 
